@@ -2,7 +2,6 @@ package com.weiwei.rollingfruit;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.sprite.AnimatedSprite;
-import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.util.GLState;
 
 import com.weiwei.rollingfruit.SceneManager.SceneType;

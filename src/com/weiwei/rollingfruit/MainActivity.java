@@ -2,6 +2,7 @@ package com.weiwei.rollingfruit;
 
 import java.io.IOException;
 
+
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
@@ -11,6 +12,7 @@ import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
 import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 
+import android.view.KeyEvent;
 import com.weiwei.rollingfruit.SceneManager.SceneType;
 
 
@@ -19,7 +21,9 @@ public class MainActivity extends SimpleBaseGameActivity {
 	
 	private Camera camera;
 	private static final int CAMERA_WIDTH = 480;
-	private static final int CAMERA_HEIGHT = 800;
+	private static final int CAMERA_HEIGHT = 720;
+	public static final float LOADING_TIME = 1f;
+	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
@@ -40,16 +44,23 @@ public class MainActivity extends SimpleBaseGameActivity {
 	@Override
 	protected Scene onCreateScene() {
 		sceneManager = SceneManager.getInstance();
-		resourceManager.loadSplashResources();
+		sceneManager.prepare(this);
 		mEngine.registerUpdateHandler(new TimerHandler(2f, new ITimerCallback() {
             public void onTimePassed(final TimerHandler pTimerHandler) {
                 mEngine.unregisterUpdateHandler(pTimerHandler);
-                resourceManager.loadMenuResources();
                 sceneManager.setScene(SceneType.SCENE_MENU);
-                resourceManager.unloadSplashResources();
             }
         }));
 		return sceneManager.createSplashScene();
 	}
-
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) 
+	{  
+	    if (keyCode == KeyEvent.KEYCODE_BACK)
+	    {
+	        SceneManager.getInstance().getCurrentScene().onBackKeyPressed();
+	    }
+	    return false; 
+	}
 }

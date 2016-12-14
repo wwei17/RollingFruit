@@ -9,9 +9,8 @@ import org.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 
-import android.util.Log;
-
 import com.weiwei.rollingfruit.SceneManager.SceneType;
+import com.weiwei.rollingfruit.XMLLevelLoader.GameLevelLoader;
 
 public class MenuScene extends BaseScene implements IOnSceneTouchListener{
 
@@ -32,24 +31,46 @@ public class MenuScene extends BaseScene implements IOnSceneTouchListener{
 		groundSprite.setScale(1.43f);
 		setBackground(menuBackgound);
 		
-		Sprite sp = new Sprite(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, resourceManager.entryTextureRegion, vertexBufferObjectManager){
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				this.setPosition(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
-				//Log.d("AreaTouched","123");
-				return true;
+		createEntries(20, 150);
+		
+	}
+	
+	private void createEntries(int n, int interval){
+		int currX = SCREEN_WIDTH/2 - interval - (n-1)/3*interval;
+		int currY = SCREEN_HEIGHT/2 + interval;
+		boolean reachBorder = true;
+		int currI = 0;
+		for(int i = 0; i < n; i++){
+			currI = i%6;
+			if(currI == 0 || currI == 5){
+				if(reachBorder){currX += interval;reachBorder = false;}
+				else{ currY += interval; reachBorder = true;}
+			}else if(currI == 2 || currI == 3){
+				if(reachBorder){ currX += interval; reachBorder = false;}
+				else{currY -= interval;reachBorder = true;}
+			}else if(currI == 1){
+				currY -= interval;
+			}else if(currI == 4){
+				currY += interval;
 			}
-		};
-		entries.add(sp);
-		registerTouchArea(sp);
+			Sprite sp = new Sprite(currX, currY, resourceManager.entryTextureRegion, vertexBufferObjectManager){
+				@Override
+				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+					GameLevelLoader.GAME_LEVEL = 1;
+					sceneManager.setScene(SceneType.SCENE_GAME);
+					return false;
+				}
+			};
+			entries.add(sp);
+			registerTouchArea(sp);
+			attachChild(sp);
+		}
 		setTouchAreaBindingOnActionDownEnabled(true);
-		attachChild(sp);
 	}
 
 	@Override
 	public void onBackKeyPressed() {
-		// TODO Auto-generated method stub
-
+		 activity.moveTaskToBack(true);
 	}
 
 	@Override
@@ -67,7 +88,6 @@ public class MenuScene extends BaseScene implements IOnSceneTouchListener{
 	@Override
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 		if (pSceneTouchEvent.isActionDown()) {
-			//Log.d("Action Down", "X,Y:"+pSceneTouchEvent.getX()+","+pSceneTouchEvent.getY());
 	    }else if (pSceneTouchEvent.isActionMove()){
 	    	distanceTravelled += pSceneTouchEvent.getX()-prevX;
 	    	menuBackgound.setParallaxValue(distanceTravelled/10);

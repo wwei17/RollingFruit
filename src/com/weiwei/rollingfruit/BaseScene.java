@@ -6,21 +6,19 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.BaseGameActivity;
 
-import android.util.Log;
-
 import com.weiwei.rollingfruit.SceneManager.SceneType;
 
 public abstract class BaseScene extends Scene {
 	
-	protected int SCREEN_WIDTH;
-    protected int SCREEN_HEIGHT;
+	public int SCREEN_WIDTH;
+    public int SCREEN_HEIGHT;
     
-	protected BaseGameActivity activity;
-	protected Engine engine;
-	protected Camera camera;
-	protected VertexBufferObjectManager vertexBufferObjectManager;
-	protected ResourceManager resourceManager;
-	protected SceneManager sceneManager;
+	public BaseGameActivity activity;
+	public Engine engine;
+	public Camera camera;
+	public VertexBufferObjectManager vertexBufferObjectManager;
+	public ResourceManager resourceManager;
+	public SceneManager sceneManager;
 	
 	public BaseScene() {
         resourceManager = ResourceManager.getInstance();
