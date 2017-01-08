@@ -15,7 +15,7 @@ public class LoadingScene extends BaseScene{
 	@Override
 	public void createScene() {
 		setBackground(new Background(Color.WHITE));	
-		AnimatedSprite splash = new AnimatedSprite(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, resourceManager.loadingTextureRegion, vertexBufferObjectManager) {
+		AnimatedSprite splash = new AnimatedSprite(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, resourceManager.splashTextureRegion, vertexBufferObjectManager) {
             @Override
             protected void preDraw(GLState pGLState, Camera pCamera) 
             {
@@ -23,10 +23,10 @@ public class LoadingScene extends BaseScene{
                pGLState.enableDither();
             }
         };
-        splash.animate(200); 
-        splash.setScale(3f);
+        splash.animate(50); 
+        splash.setScale(1f);
         attachChild(splash);
-		attachChild(new Text(400, 240, resourceManager.font, "Loading...", vertexBufferObjectManager));
+		attachChild(new Text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2-200, resourceManager.font, "Loading...", vertexBufferObjectManager));
 	}
 
 	@Override

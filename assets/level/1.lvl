@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<level id="1" moves="10" target="1000">    
+<level id="1" size="3" moves="10" score="500">
+	<opening sprite="monster2" description="Fufu likes fruit"/> 
+	<opening sprite="monster2" description="fruit is tasty"/> 
+	<opening sprite="monster2" description="Fufu is rumbling "/> 
+	<opening sprite="tutorial1" description="Rotate panel"/> 
+	<opening sprite="tutorial2" description="Top smaller apples overlap the bottom larger one"/> 
     <fruit number="40" type="apple"/>
     <fruit number="40" type="banana"/>
 	<fruit number="40" type="strawberry"/>

@@ -6,8 +6,8 @@ public class FoodStrawberry extends BaseFood{
 
 	public FoodStrawberry(float pX, float pY, int i, int j) {
 		super(pX, pY, i , j, BaseFood.foodPanel.pScene.resourceManager.strawberryTextureRegion);
-		final_stage = 2;
-		Calories = 40;
+		final_stage = 20;
+		calories = 10;
 	}
 
 	@Override
@@ -15,15 +15,15 @@ public class FoodStrawberry extends BaseFood{
 		return FoodType.FOOD_STRAWBERRY;
 	}
 
-	@Override
-	public boolean removeReady() {
-		if(stage >= final_stage){
-			popupMsg("+40");
-			remove();
-			setStage(0);
-			return true;
-		}else{
-			return false;
-		}
-	}
+	//@Override
+//	public boolean removeReady() {
+//		if(stage >= final_stage){
+//			popupMsg("+40");
+//			remove();
+//			setStage(0);
+//			return true;
+//		}else{
+//			return false;
+//		}
+//	}
 }

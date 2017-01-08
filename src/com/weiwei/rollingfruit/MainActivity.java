@@ -12,8 +12,10 @@ import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
 import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 
+import android.util.Log;
 import android.view.KeyEvent;
 import com.weiwei.rollingfruit.SceneManager.SceneType;
+import com.weiwei.rollingfruit.dataloader.UserFile;
 
 
 public class MainActivity extends SimpleBaseGameActivity {
@@ -23,9 +25,17 @@ public class MainActivity extends SimpleBaseGameActivity {
 	private static final int CAMERA_WIDTH = 480;
 	private static final int CAMERA_HEIGHT = 720;
 	public static final float LOADING_TIME = 1f;
+	public static UserFile userFile = null;
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
+		try {
+			userFile = new UserFile(this.getApplicationContext());
+		} catch (Exception e) {
+			userFile = null;
+			Log.d("LOADING FAILED", "excpetion");
+			e.printStackTrace();
+		}
 		camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 	    EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new FillResolutionPolicy(), camera);
 	    return engineOptions;
@@ -45,13 +55,16 @@ public class MainActivity extends SimpleBaseGameActivity {
 	protected Scene onCreateScene() {
 		sceneManager = SceneManager.getInstance();
 		sceneManager.prepare(this);
-		mEngine.registerUpdateHandler(new TimerHandler(2f, new ITimerCallback() {
+		SplashScene splashScene = (SplashScene) sceneManager.createSplashScene();
+		int tileCount = splashScene.getTileCount();
+		Log.d("TILE COUNT",""+tileCount);
+		mEngine.registerUpdateHandler(new TimerHandler((float) (tileCount*0.1), new ITimerCallback() {
             public void onTimePassed(final TimerHandler pTimerHandler) {
                 mEngine.unregisterUpdateHandler(pTimerHandler);
                 sceneManager.setScene(SceneType.SCENE_MENU);
             }
         }));
-		return sceneManager.createSplashScene();
+		return splashScene;
 	}
 	
 	@Override

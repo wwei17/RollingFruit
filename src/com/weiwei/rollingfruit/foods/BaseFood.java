@@ -1,5 +1,7 @@
 package com.weiwei.rollingfruit.foods;
 
+import java.util.LinkedList;
+
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.Entity;
@@ -7,7 +9,8 @@ import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.opengl.texture.region.ITextureRegion;
-import org.andengine.opengl.texture.region.ITiledTextureRegion;
+
+import android.util.Log;
 
 import com.weiwei.rollingfruit.GameScene;
 import com.weiwei.rollingfruit.foods.FoodManager.FoodType;
@@ -21,6 +24,7 @@ public abstract class BaseFood extends Entity{
 	public static BaseFood[][] foods;
 	//protected AnimatedSprite aSprite;
 	protected Sprite aSprite;
+	private AnimatedSprite frame;
 	protected GameScene scene;
 	protected float BLOCK_WIDTH;
 	protected int BLOCK_SIZE;
@@ -32,7 +36,9 @@ public abstract class BaseFood extends Entity{
 	protected Text popup;
 	protected int indexI;
 	protected int indexJ;
-	public int Calories;
+	public int calories;
+	private boolean removed;
+	private LinkedList<Destination> moveToQueue;
 	
 	public static void setFoodManager(FoodManager f){
 		foodPanel = f;
@@ -53,8 +59,14 @@ public abstract class BaseFood extends Entity{
 		aSprite = new Sprite(BLOCK_WIDTH/2, BLOCK_WIDTH/2, pTextureRegion, scene.vertexBufferObjectManager);
 		aSprite.setWidth(BLOCK_WIDTH);
 		aSprite.setHeight(BLOCK_WIDTH);
-		//aSprite.animate(200);
+		frame = new AnimatedSprite(BLOCK_WIDTH/2, BLOCK_WIDTH/2, scene.resourceManager.frameTextureRegion, scene.vertexBufferObjectManager);
+		frame.setWidth(BLOCK_WIDTH);
+		frame.setHeight(BLOCK_WIDTH);
+		frame.animate(200);
 		attachChild(aSprite);
+		aSprite.attachChild(frame);
+		frame.setVisible(false);
+		frame.setIgnoreUpdate(true);
 		indexI = i;
 		indexJ = j;
 		text = new Text(BLOCK_WIDTH-10, 10, scene.resourceManager.fontTinyBlack, "loooooooooooooooong", scene.vertexBufferObjectManager);
@@ -63,7 +75,8 @@ public abstract class BaseFood extends Entity{
 		aSprite.attachChild(text);
 		attachChild(popup);
 		popup.setVisible(false);
-
+		removed = false;
+		moveToQueue = new LinkedList<Destination>();
 	}
 	
 	@Override
@@ -96,27 +109,15 @@ public abstract class BaseFood extends Entity{
 	}
 	
 	public void remove(){
-		float w = aSprite.getWidth();
-		float h = aSprite.getHeight();
-		if(w < 5 && h < 5){
-			aSprite.setVisible(false);
-			aSprite.setWidth(BLOCK_WIDTH);
-			aSprite.setHeight(BLOCK_WIDTH);
-			text.setVisible(false);
-		}else{
-			aSprite.setWidth(w/2);
-			aSprite.setHeight(h/2);
-			scene.engine.registerUpdateHandler(new TimerHandler(0.02f, new ITimerCallback() 
-	        {
-	            public void onTimePassed(final TimerHandler pTimerHandler) 
-	            {
-	            	remove();
-	            }
-	        }));
-		}
+
+		
+		aSprite.setVisible(false);
+		text.setVisible(false);
+		frame.setVisible(false);
+		frame.setIgnoreUpdate(true);
 	}
 	
-	public void moveTo(final float x_goal, final float y_goal){
+	public void moveToHelper(final float x_goal, final float y_goal, final boolean remove){
 		boolean reachGoal = true;
 		if(Math.abs(x_goal - getX()) > X_DELTA){
 			setX(getX() + (x_goal - getX()>0? X_DELTA:-X_DELTA));
@@ -135,13 +136,30 @@ public abstract class BaseFood extends Entity{
 	        {
 	            public void onTimePassed(final TimerHandler pTimerHandler) 
 	            {
-	            	moveTo(x_goal, y_goal);
+	            	moveToHelper(x_goal, y_goal, remove);
 	            }
 	        }));
+		}else{
+			if(remove){
+				remove();
+			}
+			moveToQueue.poll();
+			if(moveToQueue.size() > 0){
+				Destination d = moveToQueue.peek();
+				moveToHelper(d._x, d._y, d._removing);
+			}
+		}
+		
+	}
+	
+	public void moveTo(final float x_goal, final float y_goal, final boolean remove){
+		moveToQueue.offer(new Destination(x_goal, y_goal, remove));
+		if(moveToQueue.size() == 1){
+			moveToHelper(x_goal, y_goal, remove);
 		}
 	}
 	
-	public abstract boolean removeReady();
+
 	public abstract FoodType getFoodType();
 	
 	public static BaseFood randomFood(float pX, float pY, int i, int j){
@@ -177,6 +195,95 @@ public abstract class BaseFood extends Entity{
 		}
 	}
 	
+	class Destination{
+		float _x;
+		float _y;
+		boolean _removing;
+		
+		public Destination(float x, float y, boolean removing){
+			_x = x;
+			_y = y;
+			_removing = removing;
+		}
+	}
+
+	public int removeFinal() {
+		int caloriesGain = 0;
+		if(stage >= final_stage ){
+			popupMsg("+"+calories*stage);
+			caloriesGain = calories*stage;
+			setStage(1);
+			remove();
+			if(!removed){
+				for(int i = 0; i < BaseFood.foods.length; i++){
+					for(int j = 0; j < BaseFood.foods[i].length; j++){
+						BaseFood food = BaseFood.foods[i][j];
+						if(food!= null && !(i == indexI && j == indexJ) && food.getFoodType() == this.getFoodType()){
+							food.moveTo(getX(),getY(), true);
+							food.removed = true;
+						}
+					}
+				}
+			}
+			removed = false;
+		}
+		return caloriesGain;
+	}
+	
+	public int removeReady(){
+		BaseFood top = null;
+		int caloriesGain = 0;
+		if(removed){
+			removed = false;
+			popupMsg("+"+calories);
+			caloriesGain = calories;
+			setStage(1);
+			//remove();
+		}else{
+			if(FoodManager.upSide == 0){
+				int upI = indexI - 1;
+				while(upI >= 0 && BaseFood.foods[upI][indexJ].getFoodType() == this.getFoodType() && this.stage >= BaseFood.foods[upI][indexJ].stage ){
+					top = BaseFood.foods[upI][indexJ];
+					top.removed = true;
+					setStage(top.stage + this.stage);
+					top.moveTo(getX(),getY(), true);
+					upI -- ;
+				}
+			}else if(FoodManager.upSide == 1){
+				int upJ = indexJ - 1;
+				while(upJ >= 0 && BaseFood.foods[indexI][upJ].getFoodType() == this.getFoodType() && this.stage >= BaseFood.foods[indexI][upJ].stage ){
+					top = BaseFood.foods[indexI][upJ];
+					top.removed = true;
+					setStage(top.stage + this.stage);
+					top.moveTo(getX(),getY(), true);
+					upJ -- ;
+				}
+			}else if(FoodManager.upSide == 2){
+				int upI = indexI + 1;
+				while(upI < BaseFood.foods.length && BaseFood.foods[upI][indexJ].getFoodType() == this.getFoodType() && this.stage >= BaseFood.foods[upI][indexJ].stage ){
+					top = BaseFood.foods[upI][indexJ];
+					top.removed = true;
+					setStage(top.stage + this.stage);
+					top.moveTo(getX(),getY(), true);
+					upI++ ;
+				}
+			}else if(FoodManager.upSide == 3){
+				int upJ = indexJ + 1;
+				while(upJ < BaseFood.foods[indexI].length && BaseFood.foods[indexI][upJ].getFoodType() == this.getFoodType() && this.stage >= BaseFood.foods[indexI][upJ].stage ){
+					top = BaseFood.foods[indexI][upJ];
+					top.removed = true;
+					setStage(top.stage + this.stage);
+					top.moveTo(getX(),getY(), true);
+					upJ ++ ;
+				}
+			}
+			if(stage >= final_stage){
+				frame.setIgnoreUpdate(false);
+				frame.setVisible(true);
+			}
+		}
+		return caloriesGain;
+	};
 }
 
 

@@ -1,16 +1,20 @@
 package com.weiwei.rollingfruit;
 
+import java.util.HashMap;
+
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
-import org.andengine.opengl.font.IFont;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.adt.align.HorizontalAlign;
+
+import com.weiwei.rollingfruit.foods.FoodManager.FoodType;
 
 public class HUDPanel extends HUD{
 	public static final int GAME_WIN = 1;
@@ -23,15 +27,16 @@ public class HUDPanel extends HUD{
 	private int SCREEN_WIDTH;
 	private int SCREEN_HEIGHT;
 	public int currentScore;
-	private int targetScore;
-	private int ultimateTarget;
+	public int targetScore;
+	public int ultimateTarget;
 	private boolean increasing;
 	private Text scoreText;
 	private Text moveText;
 	private int moves;
 	public int moveLeft;
+	public HashMap<FoodType, Target> targetMap;
 	
-	public HUDPanel(int ut, int ml){
+	public HUDPanel(){
 		resourceManager = ResourceManager.getInstance();
 		BaseGameActivity activity = resourceManager.activity;
         vertexBufferObjectManager = activity.getVertexBufferObjectManager();
@@ -40,18 +45,34 @@ public class HUDPanel extends HUD{
         SCREEN_WIDTH = (int) camera.getWidth();
         SCREEN_HEIGHT = (int) camera.getHeight();
 		
-		scoreText = new Text(SCREEN_WIDTH/2-20, SCREEN_HEIGHT-70, resourceManager.font, "Score: 0123456789", new TextOptions(HorizontalAlign.LEFT), vertexBufferObjectManager);
+		scoreText = new Text(20, SCREEN_HEIGHT-60, resourceManager.fontMedian, "Score: 0123456789", new TextOptions(HorizontalAlign.LEFT), vertexBufferObjectManager);
 	    scoreText.setAnchorCenter(0, 0);  
-	    moveText = new Text(20, SCREEN_HEIGHT-70, resourceManager.font, "Move: 100", new TextOptions(HorizontalAlign.LEFT), vertexBufferObjectManager);
+	    moveText = new Text(20, SCREEN_HEIGHT-100, resourceManager.fontMedian, "Move: 100", new TextOptions(HorizontalAlign.LEFT), vertexBufferObjectManager);
 	    moveText.setAnchorCenter(0, 0);  
 	    attachChild(scoreText);
 	    attachChild(moveText);
-	    currentScore = targetScore = 0;
-	    ultimateTarget = ut;
-	    moveLeft = moves = ml;
-	    scoreText.setText("Score: "+currentScore);
-	    moveText.setText("Move: "+moveLeft);
+	    targetMap = new HashMap<FoodType, Target>();
 	    increasing = false;
+	}
+	
+	public void setTarget(String s, int v){
+		if(s.equals("moves")){
+			moveLeft = moves = v;
+			moveText.setText("Move: "+moveLeft);
+		}else if(s.equals("score")){
+			currentScore = targetScore = 0;
+			ultimateTarget = v;
+			scoreText.setText("Score: "+currentScore);
+		}else{
+			FoodType type = FoodType.getFoodTypeFromString(s);
+			int size = targetMap.size();
+			Text text = new Text(70, SCREEN_HEIGHT-140-size*40, resourceManager.fontMedian, "Score: 0123456789", new TextOptions(HorizontalAlign.LEFT), vertexBufferObjectManager);
+			Sprite sp = new Sprite(20, SCREEN_HEIGHT-140-size*40, resourceManager.getRegionByString(s), vertexBufferObjectManager);
+			Target t = new Target(s, v, text, sp);
+			targetMap.put(type, t);
+			attachChild(text);
+			attachChild(sp);
+		}
 	}
 	
 	public void updateScore(int increaseAmount){
@@ -59,6 +80,13 @@ public class HUDPanel extends HUD{
 		if(!increasing){
 			increasing = true;
 			approachTarget();
+		}
+	}
+	
+	public void updateScore2(FoodType type) {
+		if(targetMap.containsKey(type)){
+			Target target = targetMap.get(type);
+			target.increment();
 		}
 	}
 	
@@ -73,7 +101,7 @@ public class HUDPanel extends HUD{
 			if(diff > 555) currentScore += 555;
 			else if(diff > 55) currentScore += 55;
 			else currentScore += 5;
-			scoreText.setText("Score: "+currentScore);
+			scoreText.setText("Calories: "+currentScore);
 			engine.registerUpdateHandler(new TimerHandler(0.1f, new ITimerCallback() 
 	        {
 	            public void onTimePassed(final TimerHandler pTimerHandler) 
@@ -83,12 +111,21 @@ public class HUDPanel extends HUD{
             }));
 		}else{
 			increasing = false;
-			
 		}
 	}
 	
 	public int getGameStatus(){
-		if(currentScore >= ultimateTarget){
+		boolean win = true;
+		if(ultimateTarget > 0){
+			win = currentScore >= ultimateTarget;
+		}else if(currentScore > -ultimateTarget){
+			return GAME_LOST;	//lost
+		}
+		for(FoodType type : targetMap.keySet()){
+			Target t = targetMap.get(type);
+			win = win && t.currValue >= t.value;
+		}
+		if(win){
 			if(moveLeft > moves/3){
 				return GAME_MASTER_WIN;	//win
 			}else{
@@ -103,8 +140,42 @@ public class HUDPanel extends HUD{
 	
 	public void reset(){
 		currentScore = targetScore = 0;
-		scoreText.setText("Score: "+0);
+		scoreText.setText("Calories: "+0);
 		moveLeft = moves;
 		moveText.setText("Move: "+moves);
+		for(FoodType type : targetMap.keySet()){
+			targetMap.get(type).reset();
+		}
 	}
+	
+	public class Target{
+		public String type;
+		public int value;
+		int currValue;
+		Text text;
+		Sprite sp;
+		Target(String s, int v, Text t, Sprite p){
+			type = s;
+			value = v;
+			text = t;
+			text.setAnchorCenter(0, 0);
+			sp = p;
+			sp.setWidth(40);
+			sp.setHeight(40);
+			sp.setAnchorCenter(0, 0);
+			reset();
+		}
+		void reset(){
+			currValue = 0;
+			text.setText(": 0");
+		}
+		void increment(){
+			currValue++;
+			text.setText(": "+currValue);
+		}
+	}
+
+	
 }
+
+

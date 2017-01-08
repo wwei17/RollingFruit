@@ -40,7 +40,7 @@ public class MyMath{
 	
 	public static int getUpSide(float angle){
 		angle = (angle%360+360)%360;
-		if(angle < 45) return 0;
+		if(angle < 45 || angle > 315) return 0;
 		else if(angle < 135) return 1;
 		else if(angle < 225) return 2;
 		else return 3;

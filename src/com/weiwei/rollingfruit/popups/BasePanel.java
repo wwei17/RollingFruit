@@ -7,6 +7,8 @@ import org.andengine.entity.Entity;
 import com.weiwei.rollingfruit.GameScene;
 
 public class BasePanel extends Entity{
+	private final float Y_DELTA = 30;
+	
 	protected GameScene gameScene;
 	public BasePanel(GameScene gs){
 		super(gs.SCREEN_WIDTH/2, -gs.SCREEN_HEIGHT/2,gs.SCREEN_WIDTH, gs.SCREEN_HEIGHT);
@@ -15,7 +17,6 @@ public class BasePanel extends Entity{
 	
 	public void popup(){
 		setVisible(true);
-		float Y_DELTA = 20;
 		float currentY = getY();
 		float y_goal = gameScene.SCREEN_HEIGHT/2;
 		boolean reachGoal = true;
@@ -37,7 +38,7 @@ public class BasePanel extends Entity{
 	}
 	
 	public void fade(){
-		float Y_DELTA = 20;
+		
 		float currentY = getY();
 		float y_goal = -gameScene.SCREEN_HEIGHT/2;
 		boolean reachGoal = true;
