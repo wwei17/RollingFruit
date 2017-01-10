@@ -26,6 +26,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener, NextA
 	
 	public final float BLOCK_WIDTH = 50;
 	public int BLOCK_SIZE = 4;
+	public static final float BUTTON_SIZE = 50;
 	private Sprite backgroundSprite;
 	private Sprite pauseSprite;
 	private Sprite emptySprite;
@@ -38,6 +39,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener, NextA
 	private GamePausePanel gamePausePanel;
 	private GameLevelLoader levelLoader;
 	private boolean gamePaused;
+	
+	private static float GEAR_SOUND_CD = 40;
 
 	@Override
 	public void createScene() {
@@ -59,7 +62,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener, NextA
 				return true;
 			};
 		};
-		pauseSprite = new Sprite(SCREEN_WIDTH/8, SCREEN_HEIGHT/8, resourceManager.pauseTextureRegion, vertexBufferObjectManager){
+		pauseSprite = new Sprite(SCREEN_WIDTH-50, SCREEN_HEIGHT-50,BUTTON_SIZE,BUTTON_SIZE, resourceManager.pauseTextureRegion, vertexBufferObjectManager){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionDown()) {
@@ -92,6 +95,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener, NextA
 	    
 	    angle_background = 0;
 	    upSide = 0;
+	    
+	    gearSoundCD = GEAR_SOUND_CD;
 	}
 	
 	@Override
@@ -162,6 +167,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener, NextA
 			angle_background += rotateSpeed;
 			backgroundSprite.setRotation(angle_background);
 			foodPanel.setRotation(angle_background);
+			playGearSound(rotateSpeed);
 	    }else if(pSceneTouchEvent.isActionUp()){
 	    	Log.d("REGISTER", "TRUE");
 	    	registerTouchArea(emptySprite);
@@ -177,7 +183,16 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener, NextA
 		return false;
 	}
 	
-
+	private float gearSoundCD = GEAR_SOUND_CD;
+	private void playGearSound(float deltaDegree){
+		if(!MainActivity.Mute){
+			gearSoundCD -= Math.abs(deltaDegree);
+			if(gearSoundCD < 0){
+				resourceManager.soundGear.play();
+				gearSoundCD = GEAR_SOUND_CD;
+			}
+		}
+	}
 	
 	private void preProcess(){
 		if(Math.abs(rotateSpeed) < 0.001) {
@@ -208,6 +223,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener, NextA
 	            	angle_background += rotateSpeed;
 	            	backgroundSprite.setRotation(angle_background);
 	            	foodPanel.setRotation(angle_background);
+	            	playGearSound(rotateSpeed);
 	            	preProcess();
 	            }
 	        }));
@@ -250,9 +266,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener, NextA
 				e.printStackTrace();
 				Log.d("SAVE", "FAILED");
 			}
-		}else if(gameStatus == HUDPanel.GAME_LOST || !foodPanel.anyMoveAvailable()){
+		}else if(gameStatus == HUDPanel.GAME_LOST){
 			unregisterTouchArea(pauseSprite);
-			gameOverPanel.popup();
+			gameOverPanel.popup("Moves Reaches 0");
+		}else if(!foodPanel.anyMoveAvailable()){
+			unregisterTouchArea(pauseSprite);
+			gameOverPanel.popup("No Move Available");
 		}else{
 			Log.d("UNREGISTER", "2");
 			unregisterTouchArea(emptySprite);
@@ -265,16 +284,19 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener, NextA
 		upSide = 0;
     	foodPanel.reset();
 		gameHUD.reset();
-		registerTouchArea(pauseSprite);
-		engine.registerUpdateHandler(new TimerHandler(1f, new ITimerCallback() 
-        {
-            public void onTimePassed(final TimerHandler pTimerHandler) 
-            {
-            	Log.d("UNREGISTER", "1");
-            	unregisterTouchArea(emptySprite);
-            	
-            }
-        }));
+		if(!foodPanel.anyMoveAvailable()){
+			reset();
+		}else{
+			registerTouchArea(pauseSprite);
+			engine.registerUpdateHandler(new TimerHandler(1f, new ITimerCallback() 
+	        {
+	            public void onTimePassed(final TimerHandler pTimerHandler) 
+	            {
+	            	//Log.d("UNREGISTER", "1");
+	            	unregisterTouchArea(emptySprite);
+	            }
+	        }));
+		}
 	}
 
 

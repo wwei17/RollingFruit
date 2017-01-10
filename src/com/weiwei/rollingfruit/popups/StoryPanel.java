@@ -34,7 +34,7 @@ public class StoryPanel extends Entity{
 		Sprite sp = new Sprite(scene.SCREEN_WIDTH/2, scene.SCREEN_HEIGHT/2, scene.resourceManager.getRegionByString(spText), scene.vertexBufferObjectManager);
 		attachChild(sp);
 		sp.setVisible(false);
-		Text text = new Text(scene.SCREEN_WIDTH/2, 100, scene.resourceManager.fontMedian, "Score: 0123456789sdfsfsasdfasdfdfasdfasdfasfsadfasfdasfdfasdfsadfasfasfa", new TextOptions(AutoWrap.WORDS, scene.SCREEN_WIDTH-100, HorizontalAlign.LEFT), scene.vertexBufferObjectManager);
+		Text text = new Text(scene.SCREEN_WIDTH/2, scene.SCREEN_HEIGHT-100, scene.resourceManager.fontMedian, "Score: 0123456789sdfsfsasdfasdfdfasdfasdfasfsadfasfdasfdfasdfsadfasfasfa", new TextOptions(AutoWrap.WORDS, scene.SCREEN_WIDTH-100, HorizontalAlign.LEFT), scene.vertexBufferObjectManager);
 		text.setText(s);
 		attachChild(text);
 		text.setVisible(false);

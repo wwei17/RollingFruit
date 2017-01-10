@@ -25,15 +25,19 @@ import com.weiwei.rollingfruit.popups.NextAction;
 
 public class MenuScene extends BaseScene implements IOnSceneTouchListener{
 	private static MenuScene instance;
+	
 	public int ENTRY_NUMBER;
 	public int LEVEL_NUMBER = 20;
 	public final float ENTRY_INTERVAL = 150;
 	public final float ENTRY_WIDTH = 80;
+	public static final float BUTTON_SIZE = 50;
 	private ParallaxBackground menuBackgound;
 	private EntrySpritePanel entryList;
 	private float distanceTravelled;
 	private MonsterFuFu fufu;
 	private HealthPoint hp;
+	private Sprite muteSound;
+	private Sprite slash;
 	
 	@Override
 	public void createScene() {
@@ -61,6 +65,27 @@ public class MenuScene extends BaseScene implements IOnSceneTouchListener{
 		attachChild(hp);
 		
 		instance = this;
+		
+		slash = new Sprite(SCREEN_WIDTH-50, SCREEN_HEIGHT-50,BUTTON_SIZE,BUTTON_SIZE, resourceManager.slashTextureRegion, vertexBufferObjectManager);
+		muteSound =  new Sprite(SCREEN_WIDTH-50, SCREEN_HEIGHT-50,BUTTON_SIZE,BUTTON_SIZE, resourceManager.muteTextureRegion, vertexBufferObjectManager){
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				if (pSceneTouchEvent.isActionDown()) {
+					if(MainActivity.Mute){
+						resourceManager.bgMusic.play();
+						slash.setVisible(false);
+					}else{
+						resourceManager.bgMusic.pause();
+						slash.setVisible(true);
+					}
+					MainActivity.Mute = !MainActivity.Mute;
+				}
+				return true;
+			};
+		};
+		attachChild(muteSound);
+		attachChild(slash);
+		registerTouchArea(muteSound);
 	}
 	
 	public static MenuScene getInstance(){
@@ -70,7 +95,6 @@ public class MenuScene extends BaseScene implements IOnSceneTouchListener{
 	@Override
 	public void onBackKeyPressed() {
 		 activity.moveTaskToBack(true);
-		
 	}
 
 	@Override
@@ -138,7 +162,7 @@ public class MenuScene extends BaseScene implements IOnSceneTouchListener{
 				addOneEntry();
 			}
 			setX(SCREEN_WIDTH/2-rightBorder);
-			Log.d("BORDER",leftBorder+","+rightBorder);
+			//Log.d("BORDER",leftBorder+","+rightBorder);
 			MenuScene.this.setTouchAreaBindingOnActionDownEnabled(true);
 		}
 		
@@ -179,7 +203,7 @@ public class MenuScene extends BaseScene implements IOnSceneTouchListener{
 		
 		public float getLastSecondX(){
 			if(entries.size() > 1)
-				return entries.get(entries.size()-2).getX();
+				return entries.get(entries.size()-2).getX()+getX()-SCREEN_WIDTH/2;
 			else
 				return SCREEN_WIDTH/4;
 		}
@@ -239,10 +263,12 @@ public class MenuScene extends BaseScene implements IOnSceneTouchListener{
 						if(decreaseHP()){
 							sceneManager.setScene(SceneType.SCENE_GAME);
 						}else{
+							fufu.popupDialog("Take a break");
 							Log.d("HP", "low");
 						}
 					}else{
-						text.setText("Coming Soon...");
+						fufu.popupDialog("Coming Soon...");
+						//text.setText("Coming Soon...");
 						Log.d("LEVEL NOT FOUND", ""+level);
 					}
 				} catch (OutOfCharactersException | IOException e) {

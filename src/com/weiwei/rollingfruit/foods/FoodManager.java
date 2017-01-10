@@ -27,7 +27,7 @@ public class FoodManager extends Entity{
 	private RandomList availableFoods;
 	public static int upSide; //0:¡ü 1:¡ú 2:¡ý 3:¡û
 	
-	public enum FoodType {FOOD_APPLE, FOOD_BANANA, FOOD_STRAWBERRY;
+	public enum FoodType {FOOD_APPLE, FOOD_BANANA, FOOD_STRAWBERRY, FOOD_ORANGE, FOOD_GRAPE;
 		private static final List<FoodType> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
 		private static final int SIZE = VALUES.size();
 		private static final Random RANDOM = new Random();
@@ -38,6 +38,8 @@ public class FoodManager extends Entity{
 			if(s.equals("apple")) return FOOD_APPLE;
 			else if(s.equals("banana")) return FOOD_BANANA;
 			else if(s.equals("strawberry")) return FOOD_STRAWBERRY;
+			else if(s.equals("orange")) return FOOD_ORANGE;
+			else if(s.equals("grape")) return FOOD_GRAPE;
 			else return null;
 		};
 	}

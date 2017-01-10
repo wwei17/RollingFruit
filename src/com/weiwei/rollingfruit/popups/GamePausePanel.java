@@ -29,16 +29,16 @@ public class GamePausePanel extends BasePanel{
 				return true;
 			};
 		};
-		resetBtn = new Sprite(gameScene.SCREEN_WIDTH/2, gameScene.SCREEN_HEIGHT/2-50, gameScene.resourceManager.resetTextureRegion, gameScene.vertexBufferObjectManager){
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if (pSceneTouchEvent.isActionDown()) {
-					fade();
-					gameScene.reset();
-				}
-				return true;
-			};
-		};
+//		resetBtn = new Sprite(gameScene.SCREEN_WIDTH/2, gameScene.SCREEN_HEIGHT/2-50, gameScene.resourceManager.resetTextureRegion, gameScene.vertexBufferObjectManager){
+//			@Override
+//			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+//				if (pSceneTouchEvent.isActionDown()) {
+//					fade();
+//					gameScene.reset();
+//				}
+//				return true;
+//			};
+//		};
 		playBtn = new Sprite(gameScene.SCREEN_WIDTH/2+100, gameScene.SCREEN_HEIGHT/2-50, gameScene.resourceManager.playTextureRegion, gameScene.vertexBufferObjectManager){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -52,7 +52,7 @@ public class GamePausePanel extends BasePanel{
 		};
 	    text = new Text(gameScene.SCREEN_WIDTH/2, gameScene.SCREEN_HEIGHT/2+50, gameScene.resourceManager.fontTinyBlack, "GAME PAUSED", new TextOptions(HorizontalAlign.CENTER), gameScene.vertexBufferObjectManager);
 	    gameScene.registerTouchArea(backBtn);
-	    gameScene.registerTouchArea(resetBtn);
+	    //gameScene.registerTouchArea(resetBtn);
 	    gameScene.registerTouchArea(playBtn);
 		attachChild(background);
 		attachChild(text);

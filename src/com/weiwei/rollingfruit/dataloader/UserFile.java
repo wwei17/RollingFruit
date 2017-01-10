@@ -80,7 +80,7 @@ public class UserFile {
 	private void writeGroupDataToFile() throws Exception{
 		StringWriter sw=new StringWriter();
 		serializer.write(pGroup,sw);
-		System.out.println(sw.toString());
+		//System.out.println(sw.toString());
 		byte[] text = aes.encrypt(sw.toString().getBytes("UTF-8"));
         FileOutputStream fos = new FileOutputStream(file);
         fos.write(text);

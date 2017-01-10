@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<level id="10" size ="4" moves="20" score="-3000">
+	<opening sprite="monster2" description="Fufu is on a diet"/> 
+	<opening sprite="monster2" description="But fufu likes apple so much"/> 
+	<target type="apple" number="1" description="this is oiuasf"/>  
+    <fruit number="40" type="apple"/>
+    <fruit number="40" type="banana"/>
+	<fruit number="40" type="strawberry"/>
+</level>

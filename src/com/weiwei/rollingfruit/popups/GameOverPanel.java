@@ -15,6 +15,7 @@ public class GameOverPanel extends BasePanel{
 	private Sprite resetBtn;
 	private Sprite background;
 	private Text text;
+	private Text text2;
 	private AnimatedSprite cryingMonster;
 	
 	public GameOverPanel(GameScene gs){
@@ -46,12 +47,14 @@ public class GameOverPanel extends BasePanel{
 				return true;
 			};
 		};
-	    text = new Text(gameScene.SCREEN_WIDTH/2, gameScene.SCREEN_HEIGHT/2+50, gameScene.resourceManager.fontTinyBlack, "GAME OVER", new TextOptions(HorizontalAlign.CENTER), gameScene.vertexBufferObjectManager);
+	    text = new Text(gameScene.SCREEN_WIDTH/2, gameScene.SCREEN_HEIGHT/2+70, gameScene.resourceManager.fontTinyBlack, "GAME OVER", new TextOptions(HorizontalAlign.CENTER), gameScene.vertexBufferObjectManager);
+	    text2 = new Text(gameScene.SCREEN_WIDTH/2, gameScene.SCREEN_HEIGHT/2+30, gameScene.resourceManager.fontTinyBlack, "kaghlakflwejflasdfasdfasdf", new TextOptions(HorizontalAlign.CENTER), gameScene.vertexBufferObjectManager);
 	    gameScene.registerTouchArea(backBtn);
 	    gameScene.registerTouchArea(resetBtn);
 	    //setVisible(false);
 		attachChild(background);
 		attachChild(text);
+		attachChild(text2);
 		attachChild(backBtn);
 		attachChild(resetBtn);
 		gameScene.attachChild(this);
@@ -62,5 +65,8 @@ public class GameOverPanel extends BasePanel{
         attachChild(cryingMonster);
 	}
 
-	
+	public void popup(String s){
+		text2.setText(s);
+		super.popup();
+	}
 }

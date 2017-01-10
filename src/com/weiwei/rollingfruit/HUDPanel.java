@@ -47,7 +47,7 @@ public class HUDPanel extends HUD{
 		
 		scoreText = new Text(20, SCREEN_HEIGHT-60, resourceManager.fontMedian, "Score: 0123456789", new TextOptions(HorizontalAlign.LEFT), vertexBufferObjectManager);
 	    scoreText.setAnchorCenter(0, 0);  
-	    moveText = new Text(20, SCREEN_HEIGHT-100, resourceManager.fontMedian, "Move: 100", new TextOptions(HorizontalAlign.LEFT), vertexBufferObjectManager);
+	    moveText = new Text(20, SCREEN_HEIGHT-95, resourceManager.fontMedian, "Move: 100", new TextOptions(HorizontalAlign.LEFT), vertexBufferObjectManager);
 	    moveText.setAnchorCenter(0, 0);  
 	    attachChild(scoreText);
 	    attachChild(moveText);
@@ -66,8 +66,8 @@ public class HUDPanel extends HUD{
 		}else{
 			FoodType type = FoodType.getFoodTypeFromString(s);
 			int size = targetMap.size();
-			Text text = new Text(70, SCREEN_HEIGHT-140-size*40, resourceManager.fontMedian, "Score: 0123456789", new TextOptions(HorizontalAlign.LEFT), vertexBufferObjectManager);
-			Sprite sp = new Sprite(20, SCREEN_HEIGHT-140-size*40, resourceManager.getRegionByString(s), vertexBufferObjectManager);
+			Text text = new Text(70, SCREEN_HEIGHT-130-size*35, resourceManager.fontMedian, "Score: 0123456789", new TextOptions(HorizontalAlign.LEFT), vertexBufferObjectManager);
+			Sprite sp = new Sprite(20, SCREEN_HEIGHT-130-size*35, resourceManager.getRegionByString(s), vertexBufferObjectManager);
 			Target t = new Target(s, v, text, sp);
 			targetMap.put(type, t);
 			attachChild(text);

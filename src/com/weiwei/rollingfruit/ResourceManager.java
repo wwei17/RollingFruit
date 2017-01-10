@@ -1,5 +1,11 @@
 package com.weiwei.rollingfruit;
 
+import java.io.IOException;
+
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.ITexture;
@@ -9,6 +15,7 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegion
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.ui.activity.BaseGameActivity;
+import org.andengine.util.debug.Debug;
 
 import android.graphics.Color;
 
@@ -39,6 +46,10 @@ public class ResourceManager {
 	public Font fontTinyWhite;
 	public Font fontTinyBlack;
 	public Font fontBigWhite;
+	public Sound soundGear;
+	public Sound soundExplose;
+    public Music bgMusic;
+	
 	public void loadSplashResources() {
 		if(splashTextureAtlas != null) return;
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/splash/");
@@ -55,7 +66,7 @@ public class ResourceManager {
         final ITexture blackTinyFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
         final ITexture whiteTinyFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
         font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "font.ttf", 50, true, Color.WHITE, 2, Color.BLACK);
-        fontMedian = FontFactory.createStrokeFromAsset(activity.getFontManager(), whiteMedianFontTexture, activity.getAssets(), "font.ttf", 40, true, Color.WHITE, 2, Color.BLACK);
+        fontMedian = FontFactory.createStrokeFromAsset(activity.getFontManager(), whiteMedianFontTexture, activity.getAssets(), "font.ttf", 35, true, Color.WHITE, 2, Color.BLACK);
         fontTinyBlack = FontFactory.createStrokeFromAsset(activity.getFontManager(), blackTinyFontTexture, activity.getAssets(), "font.ttf", 20, true, Color.WHITE, 2, Color.BLACK);
         fontTinyWhite = FontFactory.createStrokeFromAsset(activity.getFontManager(), whiteTinyFontTexture, activity.getAssets(), "font.ttf", 20, true, Color.BLACK, 2, Color.WHITE);
         fontBigWhite = FontFactory.createStrokeFromAsset(activity.getFontManager(), whiteBigFontTexture, activity.getAssets(), "font.ttf", 50, true, Color.BLACK, 2, Color.WHITE);
@@ -66,6 +77,20 @@ public class ResourceManager {
         fontTinyBlack.load();
         fontTinyWhite.load();
         
+        SoundFactory.setAssetBasePath("music/");
+        try {
+        	soundGear = SoundFactory.createSoundFromAsset(activity.getEngine().getSoundManager(), activity, "gear.ogg");
+        } catch (final IOException e) {
+            Debug.e(e);
+        }
+         
+        MusicFactory.setAssetBasePath("music/");
+        try {
+        	bgMusic = MusicFactory.createMusicFromAsset(activity.getEngine().getMusicManager(), activity, "bgMusic.ogg");
+        	bgMusic.setLooping(true);
+        } catch (final IOException e) {
+            Debug.e(e);
+        }
     }
 	public void unloadSplashResources() {
 		splashTextureAtlas.unload();
@@ -79,6 +104,9 @@ public class ResourceManager {
 	public TiledTextureRegion starTextureRegion;
 	public TiledTextureRegion movingMonsterTextureRegion;
 	public ITextureRegion hpTextureRegion;
+	public ITextureRegion muteTextureRegion;
+	public ITextureRegion slashTextureRegion;
+	public ITextureRegion dialogTextureRegion;
 	public ITextureRegion hpFrameTextureRegion;
 	public void loadMenuResources() {
 		if(menuTextureAtlas != null) return ;
@@ -90,7 +118,10 @@ public class ResourceManager {
 		starTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(menuTextureAtlas, activity, "star.png", 512, 1024, 2, 1); 
 		movingMonsterTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(menuTextureAtlas, activity, "monster_moving.png", 329, 512, 5, 1); 
 		hpTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "hp.png", 0, 700);
-		hpFrameTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "frame_hp.png", 0, 800);
+		hpFrameTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "frame_hp.png", 0, 800); //400x100
+		muteTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "sound.png", 0, 900); 
+		slashTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "slash.png", 100, 900); 
+		dialogTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "dialog.png", 200, 900); 
 		
 		menuTextureAtlas.load();
 	}
@@ -177,7 +208,6 @@ public class ResourceManager {
 		else if(s.equals("tutorial2")) return tutorial2TextureRegion;
 		else if(s.equals("tutorial3")) return tutorial3TextureRegion;
 		else return null;
-		
-		
+
 	}
 }

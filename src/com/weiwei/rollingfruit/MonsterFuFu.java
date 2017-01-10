@@ -7,6 +7,10 @@ import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.Entity;
 import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.text.Text;
+import org.andengine.entity.text.TextOptions;
+import org.andengine.util.adt.align.HorizontalAlign;
 
 
 import com.weiwei.rollingfruit.popups.NextAction;
@@ -16,6 +20,8 @@ public class MonsterFuFu extends Entity{
 	private static final float Y_DELTA = 5;
 	public final static float FUFU_SIZE = 100;
 	private AnimatedSprite fufu;
+	private Sprite dislogFrame;
+	private Text text;
 	private MenuScene menuScene;
 	private LinkedList<Destination> moveToQueue;
 	public MonsterFuFu(MenuScene ms, float initX, float initY){
@@ -27,6 +33,12 @@ public class MonsterFuFu extends Entity{
 		fufu.setWidth(FUFU_SIZE);
 		fufu.setIgnoreUpdate(true);
 		attachChild(fufu);
+		dislogFrame = new Sprite(FUFU_SIZE/2,FUFU_SIZE*3/2, menuScene.resourceManager.dialogTextureRegion, menuScene.vertexBufferObjectManager);
+		attachChild(dislogFrame);
+		dislogFrame.setVisible(false);
+		text = new Text(FUFU_SIZE/2, FUFU_SIZE*3/2, menuScene.resourceManager.fontTinyBlack, "loooooooooooooooong", new TextOptions(HorizontalAlign.CENTER), menuScene.vertexBufferObjectManager);
+		attachChild(text);
+		text.setVisible(false);
 		moveToQueue = new LinkedList<Destination>();
 	}
 	
@@ -103,5 +115,19 @@ public class MonsterFuFu extends Entity{
 		while (i.hasNext()) {
 			i.next().adjustX(f);
 		}
+	}
+	
+	public void popupDialog(String s){
+		dislogFrame.setVisible(true);
+		text.setText(s);
+		text.setVisible(true);
+		menuScene.engine.registerUpdateHandler(new TimerHandler(2f, new ITimerCallback() 
+        {
+            public void onTimePassed(final TimerHandler pTimerHandler) 
+            {
+            	dislogFrame.setVisible(false);
+        		text.setVisible(false);
+            }
+        }));
 	}
 }

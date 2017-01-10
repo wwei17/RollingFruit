@@ -182,6 +182,10 @@ public abstract class BaseFood extends Entity{
 			return new FoodBanana(0,0,0,0);
 		}else if(type.equals("strawberry")){
 			return new FoodStrawberry(0,0,0,0);
+		}else if(type.equals("orange")){
+			return new FoodOrange(0,0,0,0);
+		}else if(type.equals("grape")){
+			return new FoodGrape(0,0,0,0);
 		}
 		
 		return null;
@@ -210,8 +214,8 @@ public abstract class BaseFood extends Entity{
 	public int removeFinal() {
 		int caloriesGain = 0;
 		if(stage >= final_stage ){
-			popupMsg("+"+calories*stage);
-			caloriesGain = calories*stage;
+			popupMsg("+"+calories);
+			caloriesGain = calories;
 			setStage(1);
 			remove();
 			if(!removed){

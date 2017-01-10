@@ -14,7 +14,7 @@ public class HealthPoint extends Entity {
 	private Text timeText;
 	private Text hpText;
 	private int currentHp;
-	private int currentCD;
+	private long currentCD;
 	public HealthPoint(MenuScene ms){
 		super(HP_SIZE, ms.SCREEN_HEIGHT-HP_SIZE, HP_SIZE, HP_SIZE);
 		menuScene = ms;
@@ -22,7 +22,7 @@ public class HealthPoint extends Entity {
 		Sprite frame = new Sprite(HP_SIZE+HP_SIZE/2, HP_SIZE/2,HP_SIZE*2, HP_SIZE/2, menuScene.resourceManager.hpFrameTextureRegion, menuScene.vertexBufferObjectManager);
 		timeText = new Text(HP_SIZE+HP_SIZE/2+5, HP_SIZE/2-2, menuScene.resourceManager.fontTinyBlack, "loooooooooooooooong", menuScene.vertexBufferObjectManager);
 		timeText.setText("full");
-		hpText = new Text(HP_SIZE/2, HP_SIZE/2, menuScene.resourceManager.fontTinyBlack, "life", menuScene.vertexBufferObjectManager);
+		hpText = new Text(HP_SIZE/2, HP_SIZE/2, menuScene.resourceManager.fontTinyBlack, "lifekahfuiahelwfhakseui", menuScene.vertexBufferObjectManager);
 		hpText.setText("5");
 		attachChild(frame);
 		attachChild(timeText);
@@ -44,7 +44,7 @@ public class HealthPoint extends Entity {
             	}else{
             		currentCD -- ;
                 	if(currentCD%HP_COUNTDOWN == 0) currentHp++;
-                	int a = currentCD%HP_COUNTDOWN;
+                	int a = (int) (currentCD%HP_COUNTDOWN);
                 	int b = a/60;
                 	int c = a%60;
                 	timeText.setText((b>=10?(b+""):("0"+b))+":"+(c>=10?(c+""):("0"+c)));
@@ -58,7 +58,10 @@ public class HealthPoint extends Entity {
 	}
 	
 	public void setCD(long timeStampToFull){
-		currentCD = Math.max((int) (timeStampToFull - System.currentTimeMillis())/1000, 0);
+		currentCD = Math.max(timeStampToFull - System.currentTimeMillis(), 0)/1000;
+		if(currentCD > HP_FULL*HP_COUNTDOWN){
+			currentCD = HP_FULL*HP_COUNTDOWN;
+		}
 	}
 	
 	public boolean decreaseCD(){
